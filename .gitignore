@@ -11,3 +11,6 @@ wheels/
 
 # Binaries
 bin
+
+#Pytest
+.pytest_cache
