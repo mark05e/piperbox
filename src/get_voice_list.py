@@ -50,20 +50,15 @@ def extract_model_matches(markdown_content, language_codes):
             language_code = language_code_match.group(1)
         else:
             language_code = match.group(2).strip()
-        print("Language code:", language_code)
         language_section = markdown_content[match.end():]
-        next_language_match = re.search(r'^\* ([^ ]+) \(([^)]+)\)', language_section, re.MULTILINE)
+        next_language_match = re.search(r'^\* ([^ ]+) \(([^)]+)\)', language_section, re.MULTILINE | re.DOTALL)
         if next_language_match:
             language_section = language_section[:next_language_match.start()]
-        model_matches = re.findall(r'\* ([^ ]+) - \[\[model\]\(([^)]+)\)\] \[\[config\]\(([^)]+)\)\]', language_section)
+        model_matches = re.findall(r'\* (.+) - \[\[model\]\(([^)]+)\)\] \[\[config\]\(([^)]+)\)\]', language_section)
         for model_match in model_matches:
-            print("Model match found:", model_match)
             model_url = model_match[1]
             model_name = model_url.split("/")[-1].split("?")[0].split(".")[0]
             model_config_url = model_match[2]
-            print("Model name:", model_name)
-            print("Model URL:", model_url)
-            print("Model config URL:", model_config_url)
             language_codes[language_code]["models"].append({
                 "model_name": model_name,
                 "model_url": model_url,
