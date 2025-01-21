@@ -14,3 +14,7 @@ bin
 
 #Pytest
 .pytest_cache
+
+# Project specific
+voicemodels
+metadata/config.json
