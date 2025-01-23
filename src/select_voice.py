@@ -6,9 +6,23 @@ def load_voices_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
-def save_config_json(file_path, config):
+def save_config(voices, language_index, model_index, file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            existing_config = json.load(file)
+    except FileNotFoundError:
+        existing_config = {}
+
+    if 'voice_config' not in existing_config:
+        existing_config['voice_config'] = {}
+
+    language_code = voices[language_index]['language_code']
+    model_name = voices[language_index]['models'][model_index]['model_name']
+
+    existing_config['voice_config'][language_code] = {'model_name': model_name}
+
     with open(file_path, 'w', encoding='utf-8') as file:
-        json.dump(config, file, indent=4)
+        json.dump(existing_config, file, indent=4)
 
 def download_file(url, file_path):
     urllib.request.urlretrieve(url, file_path)
@@ -30,6 +44,8 @@ def get_language_choice(voices):
             print("Invalid input. Please enter a number.")
 
 def prioritize_languages(voices):
+    if voices is None:
+        raise ValueError("Input 'voices' cannot be None")
     priority_languages = ['en', 'es', 'fr']
     priority_voices = [voice for voice in voices if any(voice['language_code'].lower().startswith(lang + '_') for lang in priority_languages)]
     other_voices = [voice for voice in voices if not any(voice['language_code'].lower().startswith(lang + '_') for lang in priority_languages)]
@@ -53,23 +69,6 @@ def get_model_choice(voices, language_index):
                 print("Invalid choice. Please enter a number between 1 and", len(voices[language_index]['models']))
         except ValueError:
             print("Invalid input. Please enter a number.")
-
-def create_config(voices, language_index, model_index):
-    language_code = voices[language_index]['language_code']
-    # language_name = voices[language_index]['language_name']
-    model_name = voices[language_index]['models'][model_index]['model_name']
-    # model_url = voices[language_index]['models'][model_index]['model_url']
-    # config_url = voices[language_index]['models'][model_index]['model_config_url']
-
-    config = {
-        'voice_config': {
-            language_code: {
-                'model_name': model_name
-            }
-        }
-    }
-
-    return config
 
 def download_model_and_config(voices, language_index, model_index):
     language_code = voices[language_index]['language_code']
@@ -106,10 +105,9 @@ def main():
     display_models(voices, language_index)
     model_index = get_model_choice(voices, language_index)
 
-    config = create_config(voices, language_index, model_index)
-    save_config_json(config_json_path, config)
-
     download_model_and_config(voices, language_index, model_index)
+
+    save_config(voices, language_index, model_index, config_json_path)
 
     print("\nConfig setup successfully!")
 
