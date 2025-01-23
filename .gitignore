@@ -18,3 +18,5 @@ bin
 # Project specific
 voicemodels
 metadata/config.json
+input.tsv
+output.json
